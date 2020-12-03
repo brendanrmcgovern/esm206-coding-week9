@@ -39,6 +39,45 @@ utst <- lizards %>%
   filter(tail %in% c("B", "W"))
 ```
 
+# Find counts and proportions of lizards with broken or whole tails at each site
+```{r}
+utst %>% 
+  count(site, tail)
+```
+
+```{r}
+tail_counts <- utst %>%
+  janitor::tabyl(site, tail)
+
+tail_proportions <- tail_counts %>%
+  janitor::adorn_percentages() %>% 
+  janitor::adorn_pct_formatting(digits = 2) %>% 
+  janitor::adorn_ns()
+```
+
+
+## Convert to a contingency table
+converts column into row names
+
+Use `column_to_rowname()`.
+```{r}
+lizard_ct <- tail_counts %>% 
+  column_to_rownames(var = "site")
+```
+
+## Chi-square
+
+```{r}
+lizard_x2 <- chisq.test(lizard_ct)
+lizard_x2
+
+lizard_tidy <- tidy(lizard_x2)
+lizard_tidy
+```
+
+There is a significant association (i.e. non-independence) between site and lizard tail breakage ($\chi$^2^(`r lizard_tidy$parameter`) = `r lizard_tidy$statistic`, *p* = `r lizard_tidy$p.value`).
+
+
 
 
 
